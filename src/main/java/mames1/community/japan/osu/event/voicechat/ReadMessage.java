@@ -6,6 +6,7 @@ import mames1.community.japan.osu.utils.discord.voicechat.audio.PlayerManager;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.HonorificNameGenerator;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.URLTitleReplacer;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.VoiceGenerator;
+import mames1.community.japan.osu.utils.discord.voicechat.reader.WavPathGenerator;
 import mames1.community.japan.osu.utils.file.ResponseByteSave;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,7 +23,7 @@ public class ReadMessage extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
 
-        boolean isVoiceConnected = Main.bot.isVoiceConnected();
+        boolean isVoiceConnected = Main.voiceChat.isActive();
         HttpResponse<byte[]> response;
         StringBuilder readText = new StringBuilder();
         String finalText;
@@ -83,7 +84,7 @@ public class ReadMessage extends ListenerAdapter {
 
         response = VoiceGenerator.generate(finalText);
 
-        Path path = Path.of((voiceQueueId) + ".wav");
+        Path path = WavPathGenerator.getWavPath(voiceQueueId);
         boolean isSuccess = ResponseByteSave.save(response, path);
 
         if(isSuccess) {

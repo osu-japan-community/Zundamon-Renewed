@@ -3,8 +3,7 @@ package mames1.community.japan.osu.object;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
 import lombok.Setter;
-import mames1.community.japan.osu.event.voicechat.JoinRequest;
-import mames1.community.japan.osu.event.voicechat.ReadMessage;
+import mames1.community.japan.osu.event.voicechat.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -16,8 +15,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 @Getter
 @Setter
 public class Bot {
-
-    boolean isVoiceConnected = false;
     long voiceQueueID = 0L;
     String token;
     JDA jda;
@@ -54,7 +51,12 @@ public class Bot {
                 ).addEventListeners(
                     // 読み上げ機能
                         new JoinRequest(),
-                        new ReadMessage()
+                        new DisconnectRequest(),
+                        new ReadMessage(),
+                        //参加
+                        new ChatUpdate(),
+                        // 退出
+                        new AutoDisconnect()
                 )
                 .build();
     }

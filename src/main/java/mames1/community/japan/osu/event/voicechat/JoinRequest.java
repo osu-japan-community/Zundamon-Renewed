@@ -2,17 +2,15 @@ package mames1.community.japan.osu.event.voicechat;
 
 import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.constants.ChannelID;
-import mames1.community.japan.osu.constants.ServerEmoji;
+import mames1.community.japan.osu.utils.discord.embed.ConnectEmbed;
 import mames1.community.japan.osu.utils.discord.voicechat.JoinedUserChecker;
-import net.dv8tion.jda.api.EmbedBuilder;
+import mames1.community.japan.osu.utils.log.Level;
+import mames1.community.japan.osu.utils.log.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfMuteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
-
-import java.awt.*;
-import java.util.Date;
 
 public class JoinRequest extends ListenerAdapter {
 
@@ -20,12 +18,9 @@ public class JoinRequest extends ListenerAdapter {
     public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent e) {
 
         JDA jda = e.getJDA();
+        boolean isVoiceConnected= Main.voiceChat.isActive();
 
         if (e.getVoiceState().getChannel() == null) {
-            return;
-        }
-
-        if(e.getVoiceState().getChannel().getIdLong() != ChannelID.VC1.getId()) {
             return;
         }
 
@@ -33,28 +28,29 @@ public class JoinRequest extends ListenerAdapter {
             return;
         }
 
-        if (JoinedUserChecker.isSelfJoined(e.getVoiceState())) {
+        if (isVoiceConnected) {
             return;
         }
 
-        AudioManager audioManager = e.getGuild().getAudioManager();
-        TextChannel channel = jda.getTextChannelById(ChannelID.KIKISEN.getId());
+        // VC1かVC2に接続した場合のみ反応
+        if (e.getVoiceState().getChannel().getIdLong() == ChannelID.VC1.getId() ||
+            e.getVoiceState().getChannel().getIdLong() == ChannelID.VC2.getId()) {
 
-        if (channel == null) {
-            return;
+            AudioManager audioManager = e.getGuild().getAudioManager();
+            TextChannel channel = jda.getTextChannelById(ChannelID.KIKISEN.getId());
+
+            if (channel == null) {
+                return;
+            }
+
+            channel.sendMessageEmbeds(ConnectEmbed.getConnectedEmbed(e.getVoiceState().getChannel().asVoiceChannel()).build()).queue();
+
+            audioManager.openAudioConnection(e.getVoiceState().getChannel());
+
+            Main.voiceChat.setActive(true);
+            Main.voiceChat.setChannelId(e.getVoiceState().getChannel().getIdLong());
+
+            Logger.log("VCに接続しました。接続先: " + e.getVoiceState().getChannel().getName(), Level.INFO);
         }
-
-        EmbedBuilder successEmbed = new EmbedBuilder();
-        successEmbed.setTitle(ServerEmoji.CHECK.getId() + " 接続成功");
-        successEmbed.setDescription("呼んでくれてありがとうなのだ！\n" +
-                channel.getAsMention() + " に書かれたメッセージを僕が読み上げるのだ！");
-        successEmbed.setColor(Color.GREEN);
-        successEmbed.setTimestamp(new Date().toInstant());
-
-        audioManager.openAudioConnection(e.getVoiceState().getChannel());
-
-        Main.bot.setVoiceConnected(true);
-
-        channel.sendMessageEmbeds(successEmbed.build()).queue();
     }
 }

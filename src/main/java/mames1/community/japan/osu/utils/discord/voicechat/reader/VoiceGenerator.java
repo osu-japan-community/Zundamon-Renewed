@@ -1,6 +1,5 @@
 package mames1.community.japan.osu.utils.discord.voicechat.reader;
 
-import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.utils.log.Level;
 import mames1.community.japan.osu.utils.log.Logger;
 

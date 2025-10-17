@@ -25,15 +25,4 @@ public abstract class JoinedUserChecker {
 
         return false;
     }
-
-    public static boolean isSelfJoined(GuildVoiceState state) {
-
-        for (Member member : Objects.requireNonNull(state.getChannel()).getMembers()) {
-            if (member.getUser().isBot() && member.getIdLong() == state.getJDA().getSelfUser().getIdLong()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
