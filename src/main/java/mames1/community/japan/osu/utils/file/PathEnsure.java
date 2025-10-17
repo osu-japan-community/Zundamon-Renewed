@@ -6,7 +6,7 @@ import mames1.community.japan.osu.utils.log.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class PathEnsure {
+public abstract class PathEnsure {
 
     // Path.ofを使用してdirを渡す
     public static boolean ensureDirectory (Path dir) {
