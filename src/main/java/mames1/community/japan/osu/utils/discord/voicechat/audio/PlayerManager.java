@@ -46,26 +46,27 @@ public class PlayerManager {
             }
 
             @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-            }
+            public void playlistLoaded(AudioPlaylist playlist) { }
 
             @Override
-            public void noMatches() {
-                // Do nothing
-            }
+            public void noMatches() { }
 
             @Override
-            public void loadFailed(FriendlyException exception) {
-                // Do nothing
-            }
+            public void loadFailed(FriendlyException exception) { }
         });
+    }
+
+    public void stopAndClear(Guild guild) {
+        GuildMusicManager manager = musicManagers.get(guild.getIdLong());
+        if (manager != null) {
+            manager.scheduler.stopAndClear();
+        }
     }
 
     public static PlayerManager getManager() {
         if (INSTANCE == null) {
             INSTANCE = new PlayerManager();
         }
-
         return INSTANCE;
     }
 }

@@ -54,9 +54,10 @@ public class Bot {
                         new DisconnectRequest(),
                         new ReadMessage(),
                         //参加
-                        new ChatUpdate(),
+                        new MemberUpdate(),
                         // 退出
-                        new AutoDisconnect()
+                        new AutoDisconnect(),
+                        new BotVoiceDisconnect()
                 )
                 .build();
     }

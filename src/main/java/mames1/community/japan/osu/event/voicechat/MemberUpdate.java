@@ -16,7 +16,7 @@ import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class ChatUpdate extends ListenerAdapter {
+public class MemberUpdate extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent e) {
@@ -26,6 +26,10 @@ public class ChatUpdate extends ListenerAdapter {
         HttpResponse<byte[]> response;
         StringBuilder resultText = new StringBuilder();
         Path path = WavPathGenerator.getWavPath(id);
+
+        if (e.getMember().getUser().isBot()) {
+            return;
+        }
 
         if (e.getChannelLeft() == null && e.getChannelJoined() == null) {
             return;
