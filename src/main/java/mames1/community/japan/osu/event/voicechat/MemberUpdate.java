@@ -46,6 +46,8 @@ public class MemberUpdate extends ListenerAdapter {
                 }
 
                 resultText.append(name).append("が参加したのだ！こんにちは。");
+
+                Logger.log("参加: " + e.getMember().getEffectiveName(), Level.INFO);
             } else {
 
                 if(e.getChannelLeft().getIdLong() != channelId) {
@@ -53,6 +55,8 @@ public class MemberUpdate extends ListenerAdapter {
                 }
 
                 resultText.append(name).append("が退出したのだ！お疲れ様でした。");
+
+                Logger.log("退出: " + e.getMember().getEffectiveName(), Level.INFO);
             }
 
             response = VoiceGenerator.generate(resultText.toString());

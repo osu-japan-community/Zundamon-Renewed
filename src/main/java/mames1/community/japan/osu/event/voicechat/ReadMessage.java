@@ -8,6 +8,8 @@ import mames1.community.japan.osu.utils.discord.voicechat.reader.URLTitleReplace
 import mames1.community.japan.osu.utils.discord.voicechat.reader.VoiceGenerator;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.WavPathGenerator;
 import mames1.community.japan.osu.utils.file.ResponseByteSave;
+import mames1.community.japan.osu.utils.log.Level;
+import mames1.community.japan.osu.utils.log.Logger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -56,6 +58,8 @@ public class ReadMessage extends ListenerAdapter {
             List<Message.Attachment> attachments = e.getMessage().getAttachments();
             int imageCount = 0;
             int videoCount = 0;
+
+            Logger.log("添付ファイルを検出: " + attachments.size() + "個", Level.INFO);
 
             for (Message.Attachment attachment : attachments) {
                 if (attachment.isImage()) {
