@@ -41,7 +41,7 @@ public class PlayerManager {
         audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                Logger.log("キューに追加しました", Level.INFO);
+                Logger.log("キューに追加しました: " + track.getInfo().uri, Level.INFO);
                 musicManager.scheduler.queue(track);
             }
 

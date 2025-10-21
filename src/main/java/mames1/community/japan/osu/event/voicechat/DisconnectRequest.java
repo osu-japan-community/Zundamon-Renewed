@@ -47,7 +47,8 @@ public class DisconnectRequest extends ListenerAdapter {
 
                 Main.voiceChat.setActive(false);
                 Main.voiceChat.setChannelId(0L);
-                Logger.log("VCから切断しました。", Level.INFO);
+
+                Logger.log(e.getMember().getEffectiveName() + "のコマンドにより、VCから切断しました。", Level.INFO);
             }
 
         }
