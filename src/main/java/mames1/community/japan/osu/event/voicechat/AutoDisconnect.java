@@ -3,8 +3,6 @@ package mames1.community.japan.osu.event.voicechat;
 import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.utils.discord.embed.DisconnectEmbed;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -50,8 +48,6 @@ public class AutoDisconnect extends ListenerAdapter {
                     DisconnectEmbed.getDisconnectEmbed().build()
             ).queue();
             Main.voiceChat.setActive(false);
-
-            Logger.log("VCに誰もいなくなった為、自動切断しました。", Level.INFO);
         }
     }
 }
