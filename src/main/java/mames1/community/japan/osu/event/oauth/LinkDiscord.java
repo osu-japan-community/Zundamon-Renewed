@@ -28,6 +28,18 @@ import java.util.Objects;
 
 public class LinkDiscord implements HttpHandler {
 
+    private void reLogin(HttpExchange exchange, Discord discord) throws Exception {
+        String discordAuth = "https://discord.com/api/oauth2/authorize" +
+                "?client_id=" + discord.getClientId() +
+                "&response_type=code" +
+                "&redirect_uri=" + discord.getRedirectUri() +
+                "&scope=identify+connections";
+
+        exchange.getResponseHeaders().set("Location", discordAuth);
+        exchange.sendResponseHeaders(302, -1);
+        exchange.close();
+    }
+
     @Override
     public void handle(HttpExchange exchange) {
         try {
@@ -45,15 +57,15 @@ public class LinkDiscord implements HttpHandler {
             String redirectUri = discord.getRedirectUri();
             String form;
 
+            // Discordのコードが存在するか確認
             if (discordCode == null) {
-                Logger.log("Discordのコードが見つかりません。", Level.ERROR);
-                SendResponse.write(exchange, 400, "Discord code is missing.");
+                reLogin(exchange, discord);
                 return;
             }
 
+            // osu!側で認証が完了しているか確認
             if (Main.link == null) {
-                Logger.log("Discord<UNK>", Level.ERROR);
-                SendResponse.write(exchange, 400, "No ongoing authentication process.");
+                reLogin(exchange, discord);
                 return;
             }
 
@@ -76,8 +88,7 @@ public class LinkDiscord implements HttpHandler {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
             if(response.statusCode() != 200) {
-                SendResponse.write(exchange, 500, "Failed to retrieve OAuth token.");
-                Logger.log("OAuthトークンの取得に失敗しました: " + response.body(), Level.ERROR);
+                reLogin(exchange, discord);
                 return;
             }
 
@@ -87,8 +98,7 @@ public class LinkDiscord implements HttpHandler {
             accessToken = tokenJson.get("access_token").asText(null);
 
             if (accessToken == null) {
-                SendResponse.write(exchange, 500, "Access token is missing in the response.");
-                Logger.log("OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), Level.ERROR);
+                reLogin(exchange, discord);
                 return;
             }
 
@@ -99,9 +109,9 @@ public class LinkDiscord implements HttpHandler {
                     .build();
             HttpResponse<String> meResponse = HttpClient.newHttpClient().send(meRequest, HttpResponse.BodyHandlers.ofString());
 
+            // Discordユーザー情報の取得に失敗 (再ログイン)
             if (meResponse.statusCode() != 200) {
-                SendResponse.write(exchange, 500, "Failed to retrieve user information.");
-                Logger.log("ユーザー情報の取得に失敗しました: " + meResponse.body(), Level.ERROR);
+                reLogin(exchange, discord);
                 return;
             }
 
@@ -114,9 +124,9 @@ public class LinkDiscord implements HttpHandler {
 
             verifiedMember = Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getMemberById(userId);
 
+            // 再ログイン
             if (verifiedMember == null) {
-                SendResponse.write(exchange, 400, "Discord user not found in the server.");
-                Logger.log("Discordユーザーがサーバー内に見つかりません: " + userId, Level.ERROR);
+                reLogin(exchange, discord);
                 return;
             }
 
