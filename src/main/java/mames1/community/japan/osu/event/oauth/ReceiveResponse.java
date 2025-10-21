@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.object.Bancho;
 import mames1.community.japan.osu.object.Discord;
+import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
 import mames1.community.japan.osu.utils.http.request.ParseQuery;
 import mames1.community.japan.osu.utils.http.request.PrintRequest;
@@ -40,6 +42,13 @@ public class ReceiveResponse implements HttpHandler {
             if (code == null || code.isEmpty()) {
                 SendResponse.write(exchange, 400, "Code is missing.");
                 return;
+            }
+
+            if (Main.link != null) {
+                if(System.currentTimeMillis() - Main.link.getLastRequestTime() < 360000) {
+                    SendResponse.write(exchange, 400, "現在他の認証中のユーザーがいるため、しばらく待ってから再度お試しください。");
+                    return;
+                }
             }
 
             // OAuthトークンを取得
@@ -99,6 +108,8 @@ public class ReceiveResponse implements HttpHandler {
             JSONObject meJson = new JSONObject(meResponse.body());
             long userId = meJson.getLong("id");
             String username = meJson.getString("username");
+
+            Main.link = new Link(userId, username, System.currentTimeMillis());
 
             Logger.log("Bancho user linked: id=" + userId + ", username=" + username, Level.INFO);
 
