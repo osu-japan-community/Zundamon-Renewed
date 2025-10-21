@@ -4,6 +4,8 @@ import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.constants.ServerEmoji;
 import mames1.community.japan.osu.constants.ServerGuild;
 import mames1.community.japan.osu.constants.ServerRole;
+import mames1.community.japan.osu.utils.log.Level;
+import mames1.community.japan.osu.utils.log.Logger;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -68,6 +70,8 @@ public class RoleDistributeRequest extends ListenerAdapter {
         else if (e.getReaction().getEmoji().equals(Emoji.fromUnicode(ServerEmoji.FLAG_BLACK.getId()))) {
             e.getGuild().addRoleToMember(member.complete(), ServerRole.SEVENK.getRole()).queue();
         }
+
+        Logger.log("ロールが付与されました。ユーザー: " + member.complete().getUser().getAsTag(), Level.INFO);
     }
 
     @Override
@@ -122,5 +126,7 @@ public class RoleDistributeRequest extends ListenerAdapter {
         else if (e.getReaction().getEmoji().equals(Emoji.fromUnicode(ServerEmoji.FLAG_BLACK.getId()))) {
             e.getGuild().removeRoleFromMember(member.complete(), ServerRole.SEVENK.getRole()).queue();
         }
+
+        Logger.log("ロールが削除されました。ユーザー: " + member.complete().getUser().getAsTag(), Level.INFO);
     }
 }
