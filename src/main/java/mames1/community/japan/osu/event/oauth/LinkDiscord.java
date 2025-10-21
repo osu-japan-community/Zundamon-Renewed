@@ -12,7 +12,6 @@ import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
 import mames1.community.japan.osu.utils.http.request.ParseQuery;
 import mames1.community.japan.osu.utils.http.request.PrintRequest;
-import mames1.community.japan.osu.utils.http.response.SendResponse;
 import mames1.community.japan.osu.utils.log.Level;
 import mames1.community.japan.osu.utils.log.Logger;
 import net.dv8tion.jda.api.JDA;
@@ -60,12 +59,14 @@ public class LinkDiscord implements HttpHandler {
             // Discordのコードが存在するか確認
             if (discordCode == null) {
                 reLogin(exchange, discord);
+                Logger.log("OAuthレスポンスにDiscordのコードが含まれていません。", Level.WARN);
                 return;
             }
 
             // osu!側で認証が完了しているか確認
             if (Main.link == null) {
                 reLogin(exchange, discord);
+                Logger.log("osu!側で認証が完了していません。", Level.WARN);
                 return;
             }
 
@@ -89,6 +90,7 @@ public class LinkDiscord implements HttpHandler {
 
             if(response.statusCode() != 200) {
                 reLogin(exchange, discord);
+                Logger.log("Discord OAuthトークンの取得に失敗しました: " + response.body(), Level.WARN);
                 return;
             }
 
@@ -99,6 +101,7 @@ public class LinkDiscord implements HttpHandler {
 
             if (accessToken == null) {
                 reLogin(exchange, discord);
+                Logger.log("Discord OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), Level.WARN);
                 return;
             }
 
@@ -112,6 +115,7 @@ public class LinkDiscord implements HttpHandler {
             // Discordユーザー情報の取得に失敗 (再ログイン)
             if (meResponse.statusCode() != 200) {
                 reLogin(exchange, discord);
+                Logger.log("Discordユーザー情報の取得に失敗しました: " + meResponse.body(), Level.WARN);
                 return;
             }
 
@@ -127,6 +131,7 @@ public class LinkDiscord implements HttpHandler {
             // 再ログイン
             if (verifiedMember == null) {
                 reLogin(exchange, discord);
+                Logger.log("Discordサーバー内にユーザーが見つかりません: id=" + userId, Level.WARN);
                 return;
             }
 
