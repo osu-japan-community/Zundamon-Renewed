@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import mames1.community.japan.osu.object.Bancho;
+import mames1.community.japan.osu.Main;
+import mames1.community.japan.osu.constants.ChannelID;
+import mames1.community.japan.osu.constants.ServerGuild;
+import mames1.community.japan.osu.constants.ServerRole;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
 import mames1.community.japan.osu.utils.http.request.ParseQuery;
@@ -12,6 +15,8 @@ import mames1.community.japan.osu.utils.http.request.PrintRequest;
 import mames1.community.japan.osu.utils.http.response.SendResponse;
 import mames1.community.japan.osu.utils.log.Level;
 import mames1.community.japan.osu.utils.log.Logger;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -19,50 +24,48 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.Objects;
 
-public class ReceiveResponse implements HttpHandler {
+public class LinkDiscord implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) {
-
         try {
 
-            final String tokenURL = "https://osu.ppy.sh/oauth/token";
-            final String meURL = "https://osu.ppy.sh/api/v2/me";
-            final String discordAuthURL = "https://discord.com/api/oauth2/authorize";
+            final String discordTokenURL = "https://discord.com/api/oauth2/token";
+            final String discordMeURL = "https://discord.com/api/users/@me";
+            String generalChatURL = "https://discord.com/channels/" + ServerGuild.OJC.getId() + "/" + ChannelID.ZATUDAN.getId();
 
             Map<String, String> params = ParseQuery.parse(exchange.getRequestURI().getQuery());
-            Bancho bancho;
-            String clientSecret, redirectUri, form;
-            int clientId;
-            String code = params.get("code");
+            Discord discord = new Discord();
+            String accessToken;
+            String discordCode = params.get("code");
+            String clientSecret = discord.getClientSecret();
+            String clientId = discord.getClientId();
+            String redirectUri = discord.getRedirectUri();
+            String form;
 
-            if (code == null || code.isEmpty()) {
-                SendResponse.write(exchange, 400, "Code is missing.");
+            if (discordCode == null) {
+                Logger.log("Discordのコードが見つかりません。", Level.ERROR);
+                SendResponse.write(exchange, 400, "Discord code is missing.");
                 return;
             }
-
-            // OAuthトークンを取得
-            bancho = new Bancho();
-            clientId = bancho.getClientId();
-            clientSecret = bancho.getClientSecret();
-            redirectUri = bancho.getRedirectUri();
 
             form = FormURLEncoder.encode(
                     Map.of(
                             "client_id", String.valueOf(clientId),
                             "client_secret", clientSecret,
-                            "code", code,
+                            "code", discordCode,
                             "grant_type", "authorization_code",
                             "redirect_uri", redirectUri
                     )
             );
 
-            HttpRequest request = HttpRequest.newBuilder(URI.create(tokenURL))
-                            .header("Accept", "application/json")
-                            .header("Content-Type", "application/x-www-form-urlencoded")
-                            .POST(HttpRequest.BodyPublishers.ofString(form))
-                            .build();
+            HttpRequest request = HttpRequest.newBuilder(URI.create(discordTokenURL))
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(form))
+                    .build();
 
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -75,7 +78,7 @@ public class ReceiveResponse implements HttpHandler {
             ObjectMapper mapper = new ObjectMapper();
 
             JsonNode tokenJson = mapper.readTree(response.body());
-            String accessToken = tokenJson.get("access_token").asText(null);
+            accessToken = tokenJson.get("access_token").asText(null);
 
             if (accessToken == null) {
                 SendResponse.write(exchange, 500, "Access token is missing in the response.");
@@ -83,7 +86,7 @@ public class ReceiveResponse implements HttpHandler {
                 return;
             }
 
-            HttpRequest meRequest = HttpRequest.newBuilder(URI.create(meURL))
+            HttpRequest meRequest = HttpRequest.newBuilder(URI.create(discordMeURL))
                     .header("Accept", "application/json")
                     .header("Authorization", "Bearer " + accessToken)
                     .GET()
@@ -97,27 +100,33 @@ public class ReceiveResponse implements HttpHandler {
             }
 
             JSONObject meJson = new JSONObject(meResponse.body());
+
             long userId = meJson.getLong("id");
-            String username = meJson.getString("username");
+            JDA jda = Main.bot.getJda();
+            Member verifiedMember;
 
-            Logger.log("Bancho user linked: id=" + userId + ", username=" + username, Level.INFO);
+            verifiedMember = Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getMemberById(userId);
 
-            Discord discord = new Discord();
+            if (verifiedMember == null) {
+                SendResponse.write(exchange, 400, "Discord user not found in the server.");
+                Logger.log("Discordユーザーがサーバー内に見つかりません: " + userId, Level.ERROR);
+                return;
+            }
 
-            String discordAuth = discordAuthURL +
-                    "?client_id=" + discord.getClientId() +
-                    "&response_type=code" +
-                    "&redirect_uri=" + discord.getRedirectUri() +
-                    "&scope=identify+connections";
+            Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).addRoleToMember(
+                verifiedMember, ServerRole.MEMBER.getRole()
+            ).queue();
 
-            exchange.getResponseHeaders().set("Location", discordAuth);
+            exchange.getResponseHeaders().set("Location", generalChatURL);
             exchange.sendResponseHeaders(302, -1);
             exchange.close();
+
+            Logger.log("Discordユーザーと連携しました: id=" + userId + ", username=" + verifiedMember.getUser().getAsTag(), Level.INFO);
 
             PrintRequest.print(exchange);
 
         } catch (Exception e) {
-            Logger.log("OAuthレスポンスの処理に失敗しました: " + e.getMessage(), Level.ERROR);
+            Logger.log("Discord連携中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
         }
     }
 }

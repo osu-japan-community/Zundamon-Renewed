@@ -2,6 +2,7 @@ package mames1.community.japan.osu.object;
 
 import com.sun.net.httpserver.HttpServer;
 import io.github.cdimascio.dotenv.Dotenv;
+import mames1.community.japan.osu.event.oauth.LinkDiscord;
 import mames1.community.japan.osu.event.oauth.ReceiveResponse;
 import mames1.community.japan.osu.utils.http.request.PrintRequest;
 import mames1.community.japan.osu.utils.log.Level;
@@ -38,6 +39,7 @@ public class Server {
             });
 
             server.createContext("/oauth", new ReceiveResponse());
+            server.createContext("/discord", new LinkDiscord());
 
             Logger.log("サーバーをポート " + port + " で起動しました。", Level.INFO);
 

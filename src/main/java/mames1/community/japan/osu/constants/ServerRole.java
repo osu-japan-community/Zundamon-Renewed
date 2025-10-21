@@ -18,7 +18,8 @@ public enum ServerRole {
     MULTI(Main.bot.getJda().getRoleById(1089914703326748772L)),
     TUUWA(Main.bot.getJda().getRoleById(1089160067187757093L)),
     FOURK(Main.bot.getJda().getRoleById(1316380765071736834L)),
-    SEVENK(Main.bot.getJda().getRoleById(1316380834076561440L));
+    SEVENK(Main.bot.getJda().getRoleById(1316380834076561440L)),
+    MEMBER(Main.bot.getJda().getRoleById(1091204734842572891L));
 
     final Role role;
 

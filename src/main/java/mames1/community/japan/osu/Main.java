@@ -1,12 +1,14 @@
 package mames1.community.japan.osu;
 
 import mames1.community.japan.osu.object.Bot;
+import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.object.Server;
 import mames1.community.japan.osu.object.VoiceChat;
 
 public class Main {
 
     public static Bot bot;
+    public static Link link;
     public static VoiceChat voiceChat;
 
     public static void main(String[] args) {
@@ -14,6 +16,7 @@ public class Main {
         Server server = new Server();
         bot = new Bot();
         voiceChat = new VoiceChat();
+        link = null;
         bot.start();
         server.start();
     }

@@ -3,6 +3,7 @@ package mames1.community.japan.osu.object;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
 import lombok.Setter;
+import mames1.community.japan.osu.event.oauth.OpenAuth;
 import mames1.community.japan.osu.event.reaction.RoleDistributeRequest;
 import mames1.community.japan.osu.event.voicechat.*;
 import net.dv8tion.jda.api.JDA;
@@ -60,7 +61,9 @@ public class Bot {
                         new MemberUpdate(),
                         // 退出
                         new AutoDisconnect(),
-                        new BotVoiceDisconnect()
+                        new BotVoiceDisconnect(),
+                        // 認証機能
+                        new OpenAuth()
                 )
                 .build();
     }
