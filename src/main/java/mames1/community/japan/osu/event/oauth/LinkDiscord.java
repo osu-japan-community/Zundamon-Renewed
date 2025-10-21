@@ -51,6 +51,12 @@ public class LinkDiscord implements HttpHandler {
                 return;
             }
 
+            if (Main.link == null) {
+                Logger.log("Discord<UNK>", Level.ERROR);
+                SendResponse.write(exchange, 400, "No ongoing authentication process.");
+                return;
+            }
+
             form = FormURLEncoder.encode(
                     Map.of(
                             "client_id", String.valueOf(clientId),
@@ -102,6 +108,7 @@ public class LinkDiscord implements HttpHandler {
             JSONObject meJson = new JSONObject(meResponse.body());
 
             long userId = meJson.getLong("id");
+
             JDA jda = Main.bot.getJda();
             Member verifiedMember;
 
@@ -120,6 +127,8 @@ public class LinkDiscord implements HttpHandler {
             exchange.getResponseHeaders().set("Location", generalChatURL);
             exchange.sendResponseHeaders(302, -1);
             exchange.close();
+
+            Main.link = null;
 
             Logger.log("Discordユーザーと連携しました: id=" + userId + ", username=" + verifiedMember.getUser().getAsTag(), Level.INFO);
 
