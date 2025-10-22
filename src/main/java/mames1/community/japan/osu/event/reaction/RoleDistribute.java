@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Objects;
 
-public class RoleDistributeRequest extends ListenerAdapter {
+public class RoleDistribute extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent e) {

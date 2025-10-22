@@ -4,7 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
 import lombok.Setter;
 import mames1.community.japan.osu.event.oauth.OpenAuth;
-import mames1.community.japan.osu.event.reaction.RoleDistributeRequest;
+import mames1.community.japan.osu.event.reaction.RoleDistribute;
 import mames1.community.japan.osu.event.voicechat.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -52,7 +52,7 @@ public class Bot {
                         ChunkingFilter.ALL
                 ).addEventListeners(
                         // ロールの付与機能
-                        new RoleDistributeRequest(),
+                        new RoleDistribute(),
                         // 読み上げ機能
                         new JoinRequest(),
                         new DisconnectRequest(),
