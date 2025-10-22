@@ -9,9 +9,9 @@ import mames1.community.japan.osu.object.Bancho;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
+import mames1.community.japan.osu.utils.http.request.GetClientIP;
 import mames1.community.japan.osu.utils.http.request.ParseQuery;
 import mames1.community.japan.osu.utils.http.request.PrintRequest;
-import mames1.community.japan.osu.utils.http.response.SendResponse;
 import mames1.community.japan.osu.utils.log.Level;
 import mames1.community.japan.osu.utils.log.Logger;
 import org.json.JSONObject;
@@ -52,6 +52,7 @@ public class ReceiveResponse implements HttpHandler {
             Map<String, String> params = ParseQuery.parse(exchange.getRequestURI().getQuery());
             Bancho bancho;
             String clientSecret, redirectUri, form;
+            String ip = GetClientIP.getIP(exchange);
             int clientId;
             String code = params.get("code");
 
@@ -59,88 +60,6 @@ public class ReceiveResponse implements HttpHandler {
                 reLogin(exchange);
                 Logger.log("OAuthレスポンスにコードが含まれていません。", Level.WARN);
                 return;
-            }
-
-            if (Main.link != null) {
-                if(System.currentTimeMillis() - Main.link.getLastRequestTime() < 360000) {
-                    // 待機時間を計算
-                    long remainingMillis = 360000 - (System.currentTimeMillis() - Main.link.getLastRequestTime());
-                    long remainingSeconds = Math.max(0, remainingMillis / 1000);
-
-                    String html = """
-                        <!DOCTYPE html>
-                        <html lang="ja">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>認証エラー</title>
-                            <style>
-                                body {
-                                    font-family: 'Roboto', Arial, sans-serif;
-                                    background-color: #f8f9fa;
-                                    color: #202124;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    height: 100vh;
-                                    margin: 0;
-                                    text-align: center;
-                                }
-                                .container {
-                                    max-width: 600px;
-                                    padding: 48px;
-                                    background-color: #ffffff;
-                                    border: 1px solid #dadce0;
-                                    border-radius: 8px;
-                                    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-                                }
-                                h1 {
-                                    font-size: 24px;
-                                    font-weight: 400;
-                                    margin-bottom: 16px;
-                                }
-                                p {
-                                    font-size: 16px;
-                                    line-height: 1.5;
-                                }
-                                .timer {
-                                    font-size: 20px;
-                                    font-weight: 500;
-                                    color: #d93025;
-                                    margin-top: 24px;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="container">
-                                <h1>認証処理がロックされています</h1>
-                                <p>現在、他のユーザーが認証処理を行っています。<br>しばらく待ってから再度お試しください。</p>
-                                <p class="timer">
-                                    <span id="countdown">%d</span> 秒後に再試行可能になります。
-                                </p>
-                            </div>
-                            <script>
-                                (function() {
-                                    let seconds = %d;
-                                    const countdownElement = document.getElementById('countdown');
-                                    const interval = setInterval(function() {
-                                        seconds--;
-                                        countdownElement.textContent = seconds;
-                                        if (seconds <= 0) {
-                                            clearInterval(interval);
-                                            window.location.reload();
-                                        }
-                                    }, 1000);
-                                })();
-                            </script>
-                        </body>
-                        </html>
-                        """.formatted(remainingSeconds, remainingSeconds);
-
-                    SendResponse.writeHtml(exchange, 400, html);
-                    Logger.log("待機用ウェブを送信しました。", Level.INFO);
-                    return;
-                }
             }
 
             // OAuthトークンを取得
@@ -198,10 +117,11 @@ public class ReceiveResponse implements HttpHandler {
             }
 
             JSONObject meJson = new JSONObject(meResponse.body());
+
             long userId = meJson.getLong("id");
             String username = meJson.getString("username");
 
-            Main.link = new Link(userId, username, System.currentTimeMillis());
+            Main.linkCache.put(ip, new Link(userId, username));
 
             Logger.log("Banchoユーザーと連携しました: id=" + userId + ", username=" + username, Level.INFO);
 
