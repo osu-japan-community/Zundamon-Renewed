@@ -23,7 +23,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-public class ReceiveResponse implements HttpHandler {
+public class LinkBancho implements HttpHandler {
 
     private void reLogin(HttpExchange httpExchange) throws IOException {
 
