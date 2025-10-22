@@ -9,7 +9,10 @@ import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.constants.ServerGuild;
 import mames1.community.japan.osu.constants.ServerRole;
 import mames1.community.japan.osu.object.Discord;
+import mames1.community.japan.osu.object.Link;
+import mames1.community.japan.osu.object.MySQL;
 import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
+import mames1.community.japan.osu.utils.http.request.GetClientIP;
 import mames1.community.japan.osu.utils.http.request.ParseQuery;
 import mames1.community.japan.osu.utils.http.request.PrintRequest;
 import mames1.community.japan.osu.utils.log.Level;
@@ -55,6 +58,7 @@ public class LinkDiscord implements HttpHandler {
             String clientId = discord.getClientId();
             String redirectUri = discord.getRedirectUri();
             String form;
+            String ip = GetClientIP.getIP(exchange);
 
             // Discordのコードが存在するか確認
             if (discordCode == null) {
@@ -64,11 +68,13 @@ public class LinkDiscord implements HttpHandler {
             }
 
             // osu!側で認証が完了しているか確認
-            if (Main.link == null) {
+            if (!Main.linkCache.containsKey(ip)) {
                 reLogin(exchange, discord);
                 Logger.log("osu!側で認証が完了していません。", Level.WARN);
                 return;
             }
+
+            Link link = Main.linkCache.get(ip);
 
             form = FormURLEncoder.encode(
                     Map.of(
@@ -124,6 +130,7 @@ public class LinkDiscord implements HttpHandler {
             long userId = meJson.getLong("id");
 
             JDA jda = Main.bot.getJda();
+            MySQL mySQL = new MySQL();
             Member verifiedMember;
 
             verifiedMember = Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getMemberById(userId);
@@ -133,17 +140,29 @@ public class LinkDiscord implements HttpHandler {
                 reLogin(exchange, discord);
                 Logger.log("Discordサーバー内にユーザーが見つかりません: id=" + userId, Level.WARN);
                 return;
+
             }
+
+            // 検証成功
+
+            mySQL.saveLinkData(verifiedMember, link);
 
             Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).addRoleToMember(
                 verifiedMember, ServerRole.MEMBER.getRole()
             ).queue();
 
+            Objects.requireNonNull(Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getTextChannelById(ChannelID.VERIFICATION_LOG.getId()))
+                            .sendMessage("認証成功: " + verifiedMember.getEffectiveName() + " -> " + link.getBanchoName() + " (" + ip + ")").queue();
+
+            Objects.requireNonNull(Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getTextChannelById(ChannelID.WELCOME.getId()))
+                            .sendMessage(verifiedMember.getAsMention() + " さん、よろしくお願いします :grin:").queue();
+
+            // リダイレクト
             exchange.getResponseHeaders().set("Location", generalChatURL);
             exchange.sendResponseHeaders(302, -1);
             exchange.close();
 
-            Main.link = null;
+            Main.linkCache.remove(ip);
 
             Logger.log("Discordユーザーと連携しました: id=" + userId + ", username=" + verifiedMember.getUser().getAsTag(), Level.INFO);
 

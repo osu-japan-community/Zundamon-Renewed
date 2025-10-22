@@ -8,10 +8,13 @@ public abstract class PrintRequest {
 
     public static void print(HttpExchange exchange) {
         try {
+            String ip = GetClientIP.getIP(exchange);
 
-            String ip = exchange.getRemoteAddress().getAddress().getHostAddress();
-
-            Logger.log( exchange.getRequestMethod() + ": " + exchange.getRequestURI().getPath() + "?" + exchange.getRequestURI().getQuery() + " (" + ip + ")", Level.DEBUG);
+            Logger.log(
+                    exchange.getRequestMethod() + ": " +
+                            exchange.getRequestURI().getPath() + "?" +
+                            exchange.getRequestURI().getQuery() + " (" + ip + ")", Level.DEBUG
+            );
 
         } catch (Exception e) {
             Logger.log("リクエストの表示に失敗しました: " + e.getMessage(), Level.ERROR);
