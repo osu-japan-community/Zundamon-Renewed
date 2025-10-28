@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.StringJoiner;
 
-public abstract class FormURLEncoder {
+public abstract class FormUrlEncoder {
 
     public static String encode(Map<String, String> map) {
         if (map == null || map.isEmpty()) return "";

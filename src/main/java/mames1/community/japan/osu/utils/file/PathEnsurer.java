@@ -1,12 +1,12 @@
 package mames1.community.japan.osu.utils.file;
 
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public abstract class PathEnsure {
+public abstract class PathEnsurer {
 
     // Path.ofを使用してdirを渡す
     public static boolean ensureDirectory (Path dir) {
@@ -14,10 +14,10 @@ public abstract class PathEnsure {
         try {
             if (Files.notExists(dir)) {
                 Files.createDirectories(dir);
-                Logger.log("新規のログフォルダ: " + dir + "を作成しました.", Level.INFO);
+                AppLogger.log("新規のログフォルダ: " + dir + "を作成しました.", LogLevel.INFO);
             }
         } catch (Exception e) {
-            Logger.log("フォルダ作成中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("フォルダ作成中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
             return false;
         }
 

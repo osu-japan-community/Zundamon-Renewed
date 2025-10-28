@@ -1,13 +1,13 @@
 package mames1.community.japan.osu.utils.file;
 
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public abstract class ResponseByteSave {
+public abstract class ResponseByteSaver {
 
     public static boolean save(HttpResponse<byte[]> r, Path path) {
         try {
@@ -17,7 +17,7 @@ public abstract class ResponseByteSave {
             }
             return false;
         } catch (Exception e) {
-            Logger.log("ファイル保存中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("ファイル保存中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
             return false;
         }
     }

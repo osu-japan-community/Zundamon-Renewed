@@ -1,23 +1,23 @@
 package mames1.community.japan.osu.utils.log;
 
 import mames1.community.japan.osu.utils.date.Date;
-import mames1.community.japan.osu.utils.file.FileEnsure;
-import mames1.community.japan.osu.utils.file.PathEnsure;
+import mames1.community.japan.osu.utils.file.FileEnsurer;
+import mames1.community.japan.osu.utils.file.PathEnsurer;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-public abstract class LogSave {
+public abstract class LogSaver {
 
-    public static void save(String message, Level level) {
+    public static void save(String message, LogLevel level) {
 
-        if(PathEnsure.ensureDirectory(Path.of("logs"))) {
+        if(PathEnsurer.ensureDirectory(Path.of("logs"))) {
 
             String dateFormatted = Date.now().replace(" ", "_").replace(":", "-");
             Path logFilePath = Path.of("logs",  level.name() + "_" + dateFormatted + ".log");
 
-            if (FileEnsure.ensureFile(logFilePath)) {
+            if (FileEnsurer.ensureFile(logFilePath)) {
                 try {
                     Files.writeString(logFilePath, message, StandardOpenOption.APPEND);
                 } catch (Exception e) {

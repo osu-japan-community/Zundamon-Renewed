@@ -5,7 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-public abstract class SendResponse {
+public abstract class ResponseSender {
 
     public static void writeHtml(HttpExchange exchange, int statusCode, String html) throws Exception {
         byte[] response = html.getBytes(StandardCharsets.UTF_8);

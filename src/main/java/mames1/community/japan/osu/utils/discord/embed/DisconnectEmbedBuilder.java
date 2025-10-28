@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.Date;
 import java.util.Objects;
 
-public abstract class DisconnectEmbed {
+public abstract class DisconnectEmbedBuilder {
 
     public static EmbedBuilder getDisconnectEmbed() {
 

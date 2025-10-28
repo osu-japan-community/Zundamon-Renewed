@@ -3,8 +3,11 @@ package mames1.community.japan.osu.object;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
 import lombok.Setter;
-import mames1.community.japan.osu.event.oauth.OpenAuth;
-import mames1.community.japan.osu.event.reaction.RoleDistribute;
+import mames1.community.japan.osu.event.manage.AddBannedWordListener;
+import mames1.community.japan.osu.event.manage.BannedWordReceiveListener;
+import mames1.community.japan.osu.event.manage.RemoveBannedWordListener;
+import mames1.community.japan.osu.event.oauth.OAuthAuthorizationListener;
+import mames1.community.japan.osu.event.role.RoleAssignmentListener;
 import mames1.community.japan.osu.event.voicechat.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -52,18 +55,22 @@ public class Bot {
                         ChunkingFilter.ALL
                 ).addEventListeners(
                         // ロールの付与機能
-                        new RoleDistribute(),
+                        new RoleAssignmentListener(),
                         // 読み上げ機能
-                        new JoinRequest(),
-                        new DisconnectRequest(),
-                        new ReadMessage(),
+                        new VoiceJoinRequestListener(),
+                        new VoiceDisconnectRequestListener(),
+                        new VoiceMessageReadListener(),
                         //参加
-                        new MemberUpdate(),
+                        new VoiceMemberUpdateListener(),
                         // 退出
-                        new AutoDisconnect(),
-                        new BotVoiceDisconnect(),
+                        new VoiceAutoDisconnectListener(),
+                        new BotVoiceDisconnectListener(),
                         // 認証機能
-                        new OpenAuth()
+                        new OAuthAuthorizationListener(),
+                        // バンワード
+                        new BannedWordReceiveListener(),
+                        new AddBannedWordListener(),
+                        new RemoveBannedWordListener()
                 )
                 .build();
     }

@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ParseQuery {
+public abstract class QueryParser {
 
     private static String urlDecode(String s) {
         return URLDecoder.decode(s, StandardCharsets.UTF_8);

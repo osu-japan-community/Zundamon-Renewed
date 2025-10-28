@@ -5,7 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import java.net.InetAddress;
 
-public abstract class GetClientIP {
+public abstract class ClientIpExtractor {
 
     // プロキシ配下でも実クライアントIPを取得
     public static String getIP(HttpExchange exchange) {

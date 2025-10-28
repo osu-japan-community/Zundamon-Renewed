@@ -1,12 +1,12 @@
 package mames1.community.japan.osu.utils.file;
 
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public abstract class FileEnsure {
+public abstract class FileEnsurer {
 
     public static boolean ensureFile (Path file) {
 
@@ -19,10 +19,10 @@ public abstract class FileEnsure {
 
             if (Files.notExists(file)) {
                 Files.createFile(file);
-                Logger.log("新規のログファイル: " + file + "を作成しました.", Level.INFO);
+                AppLogger.log("新規のログファイル: " + file + "を作成しました.", LogLevel.INFO);
             }
         } catch (Exception e) {
-            Logger.log("ファイル作成中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("ファイル作成中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
             return false;
         }
 

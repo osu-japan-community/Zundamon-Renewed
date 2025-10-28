@@ -2,15 +2,15 @@ package mames1.community.japan.osu.utils.discord.voicechat.reader;
 
 import com.moji4j.MojiConverter;
 import mames1.community.japan.osu.constants.Regex;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class URLTitleReplacer {
+public abstract class UrlTitleReplacer {
 
     public static String replaceUrlWithTitleInMessage(String message) {
         MojiConverter converter = new MojiConverter();
@@ -27,7 +27,7 @@ public abstract class URLTitleReplacer {
                 replacement = jpTitle + "のURL。";
             } catch (Exception e) {
                 replacement = "不明なウェブサイトのURL。";
-                Logger.log("リンクの内容を取得中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
+                AppLogger.log("リンクの内容を取得中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
             }
             matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
         }
