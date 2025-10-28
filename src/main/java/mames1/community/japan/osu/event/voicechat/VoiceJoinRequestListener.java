@@ -2,17 +2,17 @@ package mames1.community.japan.osu.event.voicechat;
 
 import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.constants.ChannelID;
-import mames1.community.japan.osu.utils.discord.embed.ConnectEmbed;
+import mames1.community.japan.osu.utils.discord.embed.ConnectEmbedBuilder;
 import mames1.community.japan.osu.utils.discord.voicechat.JoinedUserChecker;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfMuteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-public class JoinRequest extends ListenerAdapter {
+public class VoiceJoinRequestListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent e) {
@@ -43,14 +43,14 @@ public class JoinRequest extends ListenerAdapter {
                 return;
             }
 
-            channel.sendMessageEmbeds(ConnectEmbed.getConnectedEmbed(e.getVoiceState().getChannel().asVoiceChannel()).build()).queue();
+            channel.sendMessageEmbeds(ConnectEmbedBuilder.getConnectedEmbed(e.getVoiceState().getChannel().asVoiceChannel()).build()).queue();
 
             audioManager.openAudioConnection(e.getVoiceState().getChannel());
 
             Main.voiceChat.setActive(true);
             Main.voiceChat.setChannelId(e.getVoiceState().getChannel().getIdLong());
 
-            Logger.log("VCに接続しました。接続先: " + e.getVoiceState().getChannel().getName(), Level.INFO);
+            AppLogger.log("VCに接続しました。接続先: " + e.getVoiceState().getChannel().getName(), LogLevel.INFO);
         }
     }
 }

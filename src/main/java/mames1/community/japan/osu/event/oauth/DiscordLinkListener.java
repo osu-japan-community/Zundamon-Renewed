@@ -11,12 +11,12 @@ import mames1.community.japan.osu.constants.ServerRole;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.object.MySQL;
-import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
-import mames1.community.japan.osu.utils.http.request.GetClientIP;
-import mames1.community.japan.osu.utils.http.request.ParseQuery;
-import mames1.community.japan.osu.utils.http.request.PrintRequest;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.http.encode.FormUrlEncoder;
+import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
+import mames1.community.japan.osu.utils.http.request.QueryParser;
+import mames1.community.japan.osu.utils.http.request.RequestPrinter;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONObject;
@@ -28,7 +28,7 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.Objects;
 
-public class LinkDiscord implements HttpHandler {
+public class DiscordLinkListener implements HttpHandler {
 
     private void reLogin(HttpExchange exchange, Discord discord) throws Exception {
         String discordAuth = "https://discord.com/api/oauth2/authorize" +
@@ -50,7 +50,7 @@ public class LinkDiscord implements HttpHandler {
             final String discordMeURL = "https://discord.com/api/users/@me";
             String generalChatURL = "https://discord.com/channels/" + ServerGuild.OJC.getId() + "/" + ChannelID.ZATUDAN.getId();
 
-            Map<String, String> params = ParseQuery.parse(exchange.getRequestURI().getQuery());
+            Map<String, String> params = QueryParser.parse(exchange.getRequestURI().getQuery());
             Discord discord = new Discord();
             String accessToken;
             String discordCode = params.get("code");
@@ -58,25 +58,25 @@ public class LinkDiscord implements HttpHandler {
             String clientId = discord.getClientId();
             String redirectUri = discord.getRedirectUri();
             String form;
-            String ip = GetClientIP.getIP(exchange);
+            String ip = ClientIpExtractor.getIP(exchange);
 
             // Discordのコードが存在するか確認
             if (discordCode == null) {
                 reLogin(exchange, discord);
-                Logger.log("OAuthレスポンスにDiscordのコードが含まれていません。", Level.WARN);
+                AppLogger.log("OAuthレスポンスにDiscordのコードが含まれていません。", LogLevel.WARN);
                 return;
             }
 
             // osu!側で認証が完了しているか確認
             if (!Main.linkCache.containsKey(ip)) {
                 reLogin(exchange, discord);
-                Logger.log("osu!側で認証が完了していません。", Level.WARN);
+                AppLogger.log("osu!側で認証が完了していません。", LogLevel.WARN);
                 return;
             }
 
             Link link = Main.linkCache.get(ip);
 
-            form = FormURLEncoder.encode(
+            form = FormUrlEncoder.encode(
                     Map.of(
                             "client_id", String.valueOf(clientId),
                             "client_secret", clientSecret,
@@ -96,7 +96,7 @@ public class LinkDiscord implements HttpHandler {
 
             if(response.statusCode() != 200) {
                 reLogin(exchange, discord);
-                Logger.log("Discord OAuthトークンの取得に失敗しました: " + response.body(), Level.WARN);
+                AppLogger.log("Discord OAuthトークンの取得に失敗しました: " + response.body(), LogLevel.WARN);
                 return;
             }
 
@@ -107,7 +107,7 @@ public class LinkDiscord implements HttpHandler {
 
             if (accessToken == null) {
                 reLogin(exchange, discord);
-                Logger.log("Discord OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), Level.WARN);
+                AppLogger.log("Discord OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), LogLevel.WARN);
                 return;
             }
 
@@ -121,7 +121,7 @@ public class LinkDiscord implements HttpHandler {
             // Discordユーザー情報の取得に失敗 (再ログイン)
             if (meResponse.statusCode() != 200) {
                 reLogin(exchange, discord);
-                Logger.log("Discordユーザー情報の取得に失敗しました: " + meResponse.body(), Level.WARN);
+                AppLogger.log("Discordユーザー情報の取得に失敗しました: " + meResponse.body(), LogLevel.WARN);
                 return;
             }
 
@@ -138,7 +138,7 @@ public class LinkDiscord implements HttpHandler {
             // 再ログイン
             if (verifiedMember == null) {
                 reLogin(exchange, discord);
-                Logger.log("Discordサーバー内にユーザーが見つかりません: id=" + userId, Level.WARN);
+                AppLogger.log("Discordサーバー内にユーザーが見つかりません: id=" + userId, LogLevel.WARN);
                 return;
 
             }
@@ -164,12 +164,12 @@ public class LinkDiscord implements HttpHandler {
 
             Main.linkCache.remove(ip);
 
-            Logger.log("Discordユーザーと連携しました: id=" + userId + ", username=" + verifiedMember.getUser().getAsTag(), Level.INFO);
+            AppLogger.log("Discordユーザーと連携しました: id=" + userId + ", username=" + verifiedMember.getUser().getAsTag(), LogLevel.INFO);
 
-            PrintRequest.print(exchange);
+            RequestPrinter.print(exchange);
 
         } catch (Exception e) {
-            Logger.log("Discord連携中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("Discord連携中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
         }
     }
 }

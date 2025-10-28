@@ -4,12 +4,12 @@ import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.utils.discord.voicechat.audio.PlayerManager;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.HonorificNameGenerator;
-import mames1.community.japan.osu.utils.discord.voicechat.reader.URLTitleReplacer;
+import mames1.community.japan.osu.utils.discord.voicechat.reader.UrlTitleReplacer;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.VoiceGenerator;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.WavPathGenerator;
-import mames1.community.japan.osu.utils.file.ResponseByteSave;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.file.ResponseByteSaver;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-public class ReadMessage extends ListenerAdapter {
+public class VoiceMessageReadListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
@@ -48,7 +48,7 @@ public class ReadMessage extends ListenerAdapter {
         }
 
         if (!e.getMessage().getContentRaw().isEmpty()) {
-            readText.append(URLTitleReplacer.replaceUrlWithTitleInMessage(e.getMessage().getContentRaw()))
+            readText.append(UrlTitleReplacer.replaceUrlWithTitleInMessage(e.getMessage().getContentRaw()))
                     .append("。");
         }
 
@@ -59,7 +59,7 @@ public class ReadMessage extends ListenerAdapter {
             int imageCount = 0;
             int videoCount = 0;
 
-            Logger.log("添付ファイルを検出: " + attachments.size() + "個", Level.INFO);
+            AppLogger.log("添付ファイルを検出: " + attachments.size() + "個", LogLevel.INFO);
 
             for (Message.Attachment attachment : attachments) {
                 if (attachment.isImage()) {
@@ -89,7 +89,7 @@ public class ReadMessage extends ListenerAdapter {
         response = VoiceGenerator.generate(finalText);
 
         Path path = WavPathGenerator.getWavPath(voiceQueueId);
-        boolean isSuccess = ResponseByteSave.save(response, path);
+        boolean isSuccess = ResponseByteSaver.save(response, path);
 
         if(isSuccess) {
             Main.bot.setVoiceQueueID(voiceQueueId);

@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 
-public abstract class LoginEmbed {
+public abstract class LoginEmbedBuilder {
 
     public static EmbedBuilder getEmbed() {
 

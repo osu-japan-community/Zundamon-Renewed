@@ -4,8 +4,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,7 +72,7 @@ public class TrackScheduler extends AudioEventAdapter {
         try {
             Files.deleteIfExists(Path.of(id));
         } catch (Exception e) {
-            Logger.log("オーディオファイル削除中にエラー: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("オーディオファイル削除中にエラー: " + e.getMessage(), LogLevel.ERROR);
         }
     }
 }

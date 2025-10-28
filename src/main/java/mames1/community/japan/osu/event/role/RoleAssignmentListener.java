@@ -1,11 +1,11 @@
-package mames1.community.japan.osu.event.reaction;
+package mames1.community.japan.osu.event.role;
 
 import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.constants.ServerEmoji;
 import mames1.community.japan.osu.constants.ServerGuild;
 import mames1.community.japan.osu.constants.ServerRole;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Objects;
 
-public class RoleDistribute extends ListenerAdapter {
+public class RoleAssignmentListener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent e) {
@@ -71,7 +71,7 @@ public class RoleDistribute extends ListenerAdapter {
             e.getGuild().addRoleToMember(member.complete(), ServerRole.SEVENK.getRole()).queue();
         }
 
-        Logger.log("ロールが付与されました。ユーザー: " + member.complete().getUser().getAsTag(), Level.INFO);
+        AppLogger.log("ロールが付与されました。ユーザー: " + member.complete().getUser().getAsTag(), LogLevel.INFO);
     }
 
     @Override
@@ -127,6 +127,6 @@ public class RoleDistribute extends ListenerAdapter {
             e.getGuild().removeRoleFromMember(member.complete(), ServerRole.SEVENK.getRole()).queue();
         }
 
-        Logger.log("ロールが削除されました。ユーザー: " + member.complete().getUser().getAsTag(), Level.INFO);
+        AppLogger.log("ロールが削除されました。ユーザー: " + member.complete().getUser().getAsTag(), LogLevel.INFO);
     }
 }

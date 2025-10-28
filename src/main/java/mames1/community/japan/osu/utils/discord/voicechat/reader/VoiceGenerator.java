@@ -1,7 +1,7 @@
 package mames1.community.japan.osu.utils.discord.voicechat.reader;
 
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -37,7 +37,7 @@ public abstract class VoiceGenerator {
 
             return client.send(request, HttpResponse.BodyHandlers.ofByteArray());
         } catch (Exception e) {
-            Logger.log("音声生成中にエラーが発生しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("音声生成中にエラーが発生しました: " + e.getMessage(), LogLevel.ERROR);
         }
 
         return null;

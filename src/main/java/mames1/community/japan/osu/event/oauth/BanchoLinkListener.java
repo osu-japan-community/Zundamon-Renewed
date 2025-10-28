@@ -8,12 +8,12 @@ import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.object.Bancho;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
-import mames1.community.japan.osu.utils.http.encode.FormURLEncoder;
-import mames1.community.japan.osu.utils.http.request.GetClientIP;
-import mames1.community.japan.osu.utils.http.request.ParseQuery;
-import mames1.community.japan.osu.utils.http.request.PrintRequest;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.http.encode.FormUrlEncoder;
+import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
+import mames1.community.japan.osu.utils.http.request.QueryParser;
+import mames1.community.japan.osu.utils.http.request.RequestPrinter;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-public class LinkBancho implements HttpHandler {
+public class BanchoLinkListener implements HttpHandler {
 
     private void reLogin(HttpExchange httpExchange) throws IOException {
 
@@ -49,16 +49,16 @@ public class LinkBancho implements HttpHandler {
             final String meURL = "https://osu.ppy.sh/api/v2/me";
             final String discordAuthURL = "https://discord.com/api/oauth2/authorize";
 
-            Map<String, String> params = ParseQuery.parse(exchange.getRequestURI().getQuery());
+            Map<String, String> params = QueryParser.parse(exchange.getRequestURI().getQuery());
             Bancho bancho;
             String clientSecret, redirectUri, form;
-            String ip = GetClientIP.getIP(exchange);
+            String ip = ClientIpExtractor.getIP(exchange);
             int clientId;
             String code = params.get("code");
 
             if (code == null || code.isEmpty()) {
                 reLogin(exchange);
-                Logger.log("OAuthレスポンスにコードが含まれていません。", Level.WARN);
+                AppLogger.log("OAuthレスポンスにコードが含まれていません。", LogLevel.WARN);
                 return;
             }
 
@@ -68,7 +68,7 @@ public class LinkBancho implements HttpHandler {
             clientSecret = bancho.getClientSecret();
             redirectUri = bancho.getRedirectUri();
 
-            form = FormURLEncoder.encode(
+            form = FormUrlEncoder.encode(
                     Map.of(
                             "client_id", String.valueOf(clientId),
                             "client_secret", clientSecret,
@@ -88,7 +88,7 @@ public class LinkBancho implements HttpHandler {
 
             if(response.statusCode() != 200) {
                 reLogin(exchange);
-                Logger.log("OAuthトークンの取得に失敗しました: " + response.body(), Level.WARN);
+                AppLogger.log("OAuthトークンの取得に失敗しました: " + response.body(), LogLevel.WARN);
                 return;
             }
 
@@ -99,7 +99,7 @@ public class LinkBancho implements HttpHandler {
 
             if (accessToken == null) {
                 reLogin(exchange);
-                Logger.log("OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), Level.WARN);
+                AppLogger.log("OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), LogLevel.WARN);
                 return;
             }
 
@@ -112,7 +112,7 @@ public class LinkBancho implements HttpHandler {
 
             if (meResponse.statusCode() != 200) {
                 reLogin(exchange);
-                Logger.log("ユーザー情報の取得に失敗しました: " + meResponse.body(), Level.WARN);
+                AppLogger.log("ユーザー情報の取得に失敗しました: " + meResponse.body(), LogLevel.WARN);
                 return;
             }
 
@@ -123,7 +123,7 @@ public class LinkBancho implements HttpHandler {
 
             Main.linkCache.put(ip, new Link(userId, username));
 
-            Logger.log("Banchoユーザーと連携しました: id=" + userId + ", username=" + username, Level.INFO);
+            AppLogger.log("Banchoユーザーと連携しました: id=" + userId + ", username=" + username, LogLevel.INFO);
 
             Discord discord = new Discord();
 
@@ -137,10 +137,10 @@ public class LinkBancho implements HttpHandler {
             exchange.sendResponseHeaders(302, -1);
             exchange.close();
 
-            PrintRequest.print(exchange);
+            RequestPrinter.print(exchange);
 
         } catch (Exception e) {
-            Logger.log("OAuthレスポンスの処理に失敗しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("OAuthレスポンスの処理に失敗しました: " + e.getMessage(), LogLevel.ERROR);
         }
     }
 }

@@ -2,16 +2,16 @@ package mames1.community.japan.osu.event.voicechat;
 
 import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.constants.ChannelID;
-import mames1.community.japan.osu.utils.discord.embed.DisconnectEmbed;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.discord.embed.DisconnectEmbedBuilder;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class DisconnectRequest extends ListenerAdapter {
+public class VoiceDisconnectRequestListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
@@ -40,7 +40,7 @@ public class DisconnectRequest extends ListenerAdapter {
             if (e.getMessage().getContentRaw().equalsIgnoreCase("!disconnect")) {
 
                 e.getMessage().replyEmbeds(
-                        DisconnectEmbed.getDisconnectEmbed().build()
+                        DisconnectEmbedBuilder.getDisconnectEmbed().build()
                 ).queue();
 
                 e.getGuild().getAudioManager().closeAudioConnection();
@@ -48,7 +48,7 @@ public class DisconnectRequest extends ListenerAdapter {
                 Main.voiceChat.setActive(false);
                 Main.voiceChat.setChannelId(0L);
 
-                Logger.log(e.getMember().getEffectiveName() + "のコマンドにより、VCから切断しました。", Level.INFO);
+                AppLogger.log(e.getMember().getEffectiveName() + "のコマンドにより、VCから切断しました。", LogLevel.INFO);
             }
 
         }

@@ -2,11 +2,11 @@ package mames1.community.japan.osu.object;
 
 import com.sun.net.httpserver.HttpServer;
 import io.github.cdimascio.dotenv.Dotenv;
-import mames1.community.japan.osu.event.oauth.LinkDiscord;
-import mames1.community.japan.osu.event.oauth.LinkBancho;
-import mames1.community.japan.osu.utils.http.request.PrintRequest;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.event.oauth.DiscordLinkListener;
+import mames1.community.japan.osu.event.oauth.BanchoLinkListener;
+import mames1.community.japan.osu.utils.http.request.RequestPrinter;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.net.InetSocketAddress;
 
@@ -30,7 +30,7 @@ public class Server {
             // レスポンスのデバッグ用コンテキスト
             server.createContext("/", exchange -> {
                 try {
-                    PrintRequest.print(exchange);
+                    RequestPrinter.print(exchange);
                     exchange.sendResponseHeaders(200, 0);
                     exchange.getResponseBody().close();
                 } catch (Exception e) {
@@ -38,16 +38,16 @@ public class Server {
                 }
             });
 
-            server.createContext("/oauth", new LinkBancho());
-            server.createContext("/discord", new LinkDiscord());
+            server.createContext("/oauth", new BanchoLinkListener());
+            server.createContext("/discord", new DiscordLinkListener());
 
-            Logger.log("サーバーをポート " + port + " で起動しました。", Level.INFO);
+            AppLogger.log("サーバーをポート " + port + " で起動しました。", LogLevel.INFO);
 
             server.setExecutor(null);
             server.start();
 
         } catch (Exception e) {
-            Logger.log("サーバーの起動に失敗しました: " + e.getMessage(), Level.ERROR);
+            AppLogger.log("サーバーの起動に失敗しました: " + e.getMessage(), LogLevel.ERROR);
         }
     }
 }

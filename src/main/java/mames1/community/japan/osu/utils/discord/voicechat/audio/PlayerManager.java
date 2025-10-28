@@ -7,8 +7,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import mames1.community.japan.osu.utils.log.Level;
-import mames1.community.japan.osu.utils.log.Logger;
+import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class PlayerManager {
         audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                Logger.log("キューに追加しました: " + track.getInfo().uri, Level.INFO);
+                AppLogger.log("キューに追加しました: " + track.getInfo().uri, LogLevel.INFO);
                 musicManager.scheduler.queue(track);
             }
 

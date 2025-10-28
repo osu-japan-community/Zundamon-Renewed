@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.Date;
 import java.util.Objects;
 
-public abstract class ConnectEmbed {
+public abstract class ConnectEmbedBuilder {
 
     public static EmbedBuilder getConnectedEmbed(VoiceChannel voiceChannel) {
 

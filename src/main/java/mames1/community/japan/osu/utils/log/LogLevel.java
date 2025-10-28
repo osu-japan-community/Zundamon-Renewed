@@ -1,6 +1,6 @@
 package mames1.community.japan.osu.utils.log;
 
-public enum Level {
+public enum LogLevel {
     INFO,
     WARN,
     ERROR,
