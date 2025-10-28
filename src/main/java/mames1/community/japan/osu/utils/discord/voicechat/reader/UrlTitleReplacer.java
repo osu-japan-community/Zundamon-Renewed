@@ -2,7 +2,7 @@ package mames1.community.japan.osu.utils.discord.voicechat.reader;
 
 import com.moji4j.MojiConverter;
 import mames1.community.japan.osu.constants.Regex;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

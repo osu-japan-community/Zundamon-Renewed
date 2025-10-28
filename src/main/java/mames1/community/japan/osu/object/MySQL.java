@@ -2,7 +2,7 @@ package mames1.community.japan.osu.object;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import mames1.community.japan.osu.Main;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Member;
 

@@ -1,4 +1,4 @@
-package mames1.community.japan.osu.utils.log;
+package mames1.community.japan.osu.constants;
 
 public enum LogLevel {
     INFO,

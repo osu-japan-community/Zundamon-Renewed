@@ -1,5 +1,6 @@
 package mames1.community.japan.osu.utils.log;
 
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.date.Date;
 
 public abstract class AppLogger {

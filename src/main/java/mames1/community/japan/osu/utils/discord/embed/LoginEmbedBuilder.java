@@ -10,11 +10,11 @@ public abstract class LoginEmbedBuilder {
     public static EmbedBuilder getEmbed() {
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle(ServerEmoji.WARNING.getId() + " 連携してください");
+        embed.setTitle(ServerEmoji.WARNING.getId() + " 認証してください");
         embed.setDescription("""
-                このサーバーを利用するには、Banchoアカウントとの連携が必要です。
+                このサーバーを利用するには、Banchoアカウントのログインが必要です。
                 以下のボタンをクリックし、お使いのBanchoアカウントでログインを行ってください。
-                連携が完了すると、このサーバーのすべての機能を利用できるようになります。""");
+                ログインが完了すると、このサーバーのすべての機能を利用できるようになります。""");
         embed.setColor(Color.RED);
         embed.setFooter("Osu! Japan Community");
 
