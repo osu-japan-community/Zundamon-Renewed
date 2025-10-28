@@ -3,7 +3,7 @@ package mames1.community.japan.osu.event.manage;
 import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.object.MySQL;
 import mames1.community.japan.osu.utils.log.AppLogger;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

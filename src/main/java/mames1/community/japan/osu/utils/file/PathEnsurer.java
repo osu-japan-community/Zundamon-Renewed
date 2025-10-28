@@ -1,6 +1,6 @@
 package mames1.community.japan.osu.utils.file;
 
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.nio.file.Files;

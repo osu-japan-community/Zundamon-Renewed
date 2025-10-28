@@ -5,7 +5,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import mames1.community.japan.osu.event.oauth.DiscordLinkListener;
 import mames1.community.japan.osu.event.oauth.BanchoLinkListener;
 import mames1.community.japan.osu.utils.http.request.RequestPrinter;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 
 import java.net.InetSocketAddress;

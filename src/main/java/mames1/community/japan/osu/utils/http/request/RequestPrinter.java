@@ -1,7 +1,7 @@
 package mames1.community.japan.osu.utils.http.request;
 
 import com.sun.net.httpserver.HttpExchange;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 
 public abstract class RequestPrinter {

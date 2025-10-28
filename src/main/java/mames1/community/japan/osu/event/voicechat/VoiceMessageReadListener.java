@@ -8,7 +8,7 @@ import mames1.community.japan.osu.utils.discord.voicechat.reader.UrlTitleReplace
 import mames1.community.japan.osu.utils.discord.voicechat.reader.VoiceGenerator;
 import mames1.community.japan.osu.utils.discord.voicechat.reader.WavPathGenerator;
 import mames1.community.japan.osu.utils.file.ResponseByteSaver;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

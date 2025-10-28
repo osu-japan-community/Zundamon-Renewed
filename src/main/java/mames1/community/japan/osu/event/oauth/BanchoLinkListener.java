@@ -8,11 +8,11 @@ import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.object.Bancho;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
-import mames1.community.japan.osu.utils.http.encode.FormUrlEncoder;
+import mames1.community.japan.osu.utils.http.oauth.OAuthRequestSender;
 import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
 import mames1.community.japan.osu.utils.http.request.QueryParser;
 import mames1.community.japan.osu.utils.http.request.RequestPrinter;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import org.json.JSONObject;
 
@@ -22,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.Objects;
 
 public class BanchoLinkListener implements HttpHandler {
 
@@ -51,7 +52,7 @@ public class BanchoLinkListener implements HttpHandler {
 
             Map<String, String> params = QueryParser.parse(exchange.getRequestURI().getQuery());
             Bancho bancho;
-            String clientSecret, redirectUri, form;
+            String clientSecret, redirectUri;
             String ip = ClientIpExtractor.getIP(exchange);
             int clientId;
             String code = params.get("code");
@@ -68,25 +69,15 @@ public class BanchoLinkListener implements HttpHandler {
             clientSecret = bancho.getClientSecret();
             redirectUri = bancho.getRedirectUri();
 
-            form = FormUrlEncoder.encode(
-                    Map.of(
-                            "client_id", String.valueOf(clientId),
-                            "client_secret", clientSecret,
-                            "code", code,
-                            "grant_type", "authorization_code",
-                            "redirect_uri", redirectUri
-                    )
+            HttpResponse<String> response = OAuthRequestSender.sendOAuthRequest(
+                    String.valueOf(clientId),
+                    clientSecret,
+                    code,
+                    redirectUri,
+                    tokenURL
             );
 
-            HttpRequest request = HttpRequest.newBuilder(URI.create(tokenURL))
-                            .header("Accept", "application/json")
-                            .header("Content-Type", "application/x-www-form-urlencoded")
-                            .POST(HttpRequest.BodyPublishers.ofString(form))
-                            .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-
-            if(response.statusCode() != 200) {
+            if(Objects.requireNonNull(response).statusCode() != 200) {
                 reLogin(exchange);
                 AppLogger.log("OAuthトークンの取得に失敗しました: " + response.body(), LogLevel.WARN);
                 return;

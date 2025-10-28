@@ -4,7 +4,7 @@ import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.constants.ServerEmoji;
 import mames1.community.japan.osu.constants.ServerGuild;
 import mames1.community.japan.osu.constants.ServerRole;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;

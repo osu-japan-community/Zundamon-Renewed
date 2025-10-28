@@ -3,7 +3,7 @@ package mames1.community.japan.osu.event.voicechat;
 import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.utils.discord.embed.DisconnectEmbedBuilder;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

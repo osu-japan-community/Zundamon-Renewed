@@ -11,11 +11,11 @@ import mames1.community.japan.osu.constants.ServerRole;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.object.MySQL;
-import mames1.community.japan.osu.utils.http.encode.FormUrlEncoder;
+import mames1.community.japan.osu.utils.http.oauth.OAuthRequestSender;
 import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
 import mames1.community.japan.osu.utils.http.request.QueryParser;
 import mames1.community.japan.osu.utils.http.request.RequestPrinter;
-import mames1.community.japan.osu.utils.log.LogLevel;
+import mames1.community.japan.osu.constants.LogLevel;
 import mames1.community.japan.osu.utils.log.AppLogger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
@@ -57,7 +57,6 @@ public class DiscordLinkListener implements HttpHandler {
             String clientSecret = discord.getClientSecret();
             String clientId = discord.getClientId();
             String redirectUri = discord.getRedirectUri();
-            String form;
             String ip = ClientIpExtractor.getIP(exchange);
 
             // Discordのコードが存在するか確認
@@ -76,25 +75,15 @@ public class DiscordLinkListener implements HttpHandler {
 
             Link link = Main.linkCache.get(ip);
 
-            form = FormUrlEncoder.encode(
-                    Map.of(
-                            "client_id", String.valueOf(clientId),
-                            "client_secret", clientSecret,
-                            "code", discordCode,
-                            "grant_type", "authorization_code",
-                            "redirect_uri", redirectUri
-                    )
+            HttpResponse<String> response = OAuthRequestSender.sendOAuthRequest(
+                    String.valueOf(clientId),
+                    clientSecret,
+                    discordCode,
+                    redirectUri,
+                    discordTokenURL
             );
 
-            HttpRequest request = HttpRequest.newBuilder(URI.create(discordTokenURL))
-                    .header("Accept", "application/json")
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .POST(HttpRequest.BodyPublishers.ofString(form))
-                    .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-
-            if(response.statusCode() != 200) {
+            if(Objects.requireNonNull(response).statusCode() != 200) {
                 reLogin(exchange, discord);
                 AppLogger.log("Discord OAuthトークンの取得に失敗しました: " + response.body(), LogLevel.WARN);
                 return;
