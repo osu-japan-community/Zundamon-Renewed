@@ -1,13 +1,12 @@
 package mames1.community.japan.osu.event.oauth;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import mames1.community.japan.osu.Main;
 import mames1.community.japan.osu.object.Bancho;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
+import mames1.community.japan.osu.utils.http.oauth.OAuthMeResponseSender;
 import mames1.community.japan.osu.utils.http.oauth.OAuthRequestSender;
 import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
 import mames1.community.japan.osu.utils.http.request.QueryParser;
@@ -17,9 +16,6 @@ import mames1.community.japan.osu.utils.log.AppLogger;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +65,7 @@ public class BanchoLinkListener implements HttpHandler {
             clientSecret = bancho.getClientSecret();
             redirectUri = bancho.getRedirectUri();
 
-            HttpResponse<String> response = OAuthRequestSender.sendOAuthRequest(
+            HttpResponse<String> response = OAuthRequestSender.send(
                     String.valueOf(clientId),
                     clientSecret,
                     code,
@@ -79,29 +75,16 @@ public class BanchoLinkListener implements HttpHandler {
 
             if(Objects.requireNonNull(response).statusCode() != 200) {
                 reLogin(exchange);
-                AppLogger.log("OAuthトークンの取得に失敗しました: " + response.body(), LogLevel.WARN);
+                AppLogger.log("osu!のOAuthトークンの取得に失敗しました: " + response.body(), LogLevel.WARN);
                 return;
             }
 
-            ObjectMapper mapper = new ObjectMapper();
+            HttpResponse<String> meResponse = OAuthMeResponseSender.send(
+                    response,
+                    meURL
+            );
 
-            JsonNode tokenJson = mapper.readTree(response.body());
-            String accessToken = tokenJson.get("access_token").asText(null);
-
-            if (accessToken == null) {
-                reLogin(exchange);
-                AppLogger.log("OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), LogLevel.WARN);
-                return;
-            }
-
-            HttpRequest meRequest = HttpRequest.newBuilder(URI.create(meURL))
-                    .header("Accept", "application/json")
-                    .header("Authorization", "Bearer " + accessToken)
-                    .GET()
-                    .build();
-            HttpResponse<String> meResponse = HttpClient.newHttpClient().send(meRequest, HttpResponse.BodyHandlers.ofString());
-
-            if (meResponse.statusCode() != 200) {
+            if (Objects.requireNonNull(meResponse).statusCode() != 200) {
                 reLogin(exchange);
                 AppLogger.log("ユーザー情報の取得に失敗しました: " + meResponse.body(), LogLevel.WARN);
                 return;
