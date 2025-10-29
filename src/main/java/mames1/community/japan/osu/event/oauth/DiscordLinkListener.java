@@ -1,7 +1,5 @@
 package mames1.community.japan.osu.event.oauth;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import mames1.community.japan.osu.Main;
@@ -11,6 +9,8 @@ import mames1.community.japan.osu.constants.ServerRole;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.object.MySQL;
+import mames1.community.japan.osu.utils.discord.message.TextMessageSender;
+import mames1.community.japan.osu.utils.http.oauth.OAuthMeResponseSender;
 import mames1.community.japan.osu.utils.http.oauth.OAuthRequestSender;
 import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
 import mames1.community.japan.osu.utils.http.request.QueryParser;
@@ -21,9 +21,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONObject;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.Objects;
@@ -52,7 +49,6 @@ public class DiscordLinkListener implements HttpHandler {
 
             Map<String, String> params = QueryParser.parse(exchange.getRequestURI().getQuery());
             Discord discord = new Discord();
-            String accessToken;
             String discordCode = params.get("code");
             String clientSecret = discord.getClientSecret();
             String clientId = discord.getClientId();
@@ -75,7 +71,7 @@ public class DiscordLinkListener implements HttpHandler {
 
             Link link = Main.linkCache.get(ip);
 
-            HttpResponse<String> response = OAuthRequestSender.sendOAuthRequest(
+            HttpResponse<String> response = OAuthRequestSender.send(
                     String.valueOf(clientId),
                     clientSecret,
                     discordCode,
@@ -89,26 +85,13 @@ public class DiscordLinkListener implements HttpHandler {
                 return;
             }
 
-            ObjectMapper mapper = new ObjectMapper();
-
-            JsonNode tokenJson = mapper.readTree(response.body());
-            accessToken = tokenJson.get("access_token").asText(null);
-
-            if (accessToken == null) {
-                reLogin(exchange, discord);
-                AppLogger.log("Discord OAuthレスポンスにアクセストークンが含まれていません: " + response.body(), LogLevel.WARN);
-                return;
-            }
-
-            HttpRequest meRequest = HttpRequest.newBuilder(URI.create(discordMeURL))
-                    .header("Accept", "application/json")
-                    .header("Authorization", "Bearer " + accessToken)
-                    .GET()
-                    .build();
-            HttpResponse<String> meResponse = HttpClient.newHttpClient().send(meRequest, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> meResponse = OAuthMeResponseSender.send(
+                    response,
+                    discordMeURL
+            );
 
             // Discordユーザー情報の取得に失敗 (再ログイン)
-            if (meResponse.statusCode() != 200) {
+            if (Objects.requireNonNull(meResponse).statusCode() != 200) {
                 reLogin(exchange, discord);
                 AppLogger.log("Discordユーザー情報の取得に失敗しました: " + meResponse.body(), LogLevel.WARN);
                 return;
@@ -140,11 +123,17 @@ public class DiscordLinkListener implements HttpHandler {
                 verifiedMember, ServerRole.MEMBER.getRole()
             ).queue();
 
-            Objects.requireNonNull(Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getTextChannelById(ChannelID.VERIFICATION_LOG.getId()))
-                            .sendMessage("認証成功: " + verifiedMember.getEffectiveName() + " -> " + link.getBanchoName() + " (" + ip + ")").queue();
+            TextMessageSender.sendMessage(
+                    Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())),
+                    Objects.requireNonNull(jda.getTextChannelById(ChannelID.VERIFICATION_LOG.getId())),
+                            "認証成功: " + verifiedMember.getEffectiveName() + " -> " + link.getBanchoName() + " (" + ip + ")"
+            );
 
-            Objects.requireNonNull(Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getTextChannelById(ChannelID.WELCOME.getId()))
-                            .sendMessage(verifiedMember.getAsMention() + " さん、よろしくお願いします :grin:").queue();
+            TextMessageSender.sendMessage(
+                    Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())),
+                    Objects.requireNonNull(jda.getTextChannelById(ChannelID.WELCOME.getId())),
+                    verifiedMember.getAsMention() + " さん、よろしくお願いします :grin:"
+            );
 
             // リダイレクト
             exchange.getResponseHeaders().set("Location", generalChatURL);

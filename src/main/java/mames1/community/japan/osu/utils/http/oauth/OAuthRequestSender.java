@@ -12,7 +12,7 @@ import java.util.Map;
 
 public abstract class OAuthRequestSender {
 
-    public static HttpResponse<String> sendOAuthRequest(
+    public static HttpResponse<String> send(
             String clientId,
             String clientSecret,
             String code,

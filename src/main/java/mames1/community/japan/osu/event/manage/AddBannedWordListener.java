@@ -29,7 +29,7 @@ public class AddBannedWordListener extends ListenerAdapter {
                     Emoji.fromUnicode("U+2705")
             ).queue();
 
-            AppLogger.log("Banwordを追加しました: " + content, LogLevel.INFO);
+            AppLogger.log("BannedWordを追加しました: " + content, LogLevel.INFO);
 
             return;
         }
@@ -38,6 +38,6 @@ public class AddBannedWordListener extends ListenerAdapter {
                 Emoji.fromUnicode("U+274C")
         ).queue();
 
-        AppLogger.log("既に登録されているBanwordです: " + content, LogLevel.INFO);
+        AppLogger.log("既に登録されているBannedWordです: " + content, LogLevel.INFO);
     }
 }
