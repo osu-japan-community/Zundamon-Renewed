@@ -24,6 +24,6 @@ public class RemoveBannedWordListener extends ListenerAdapter {
 
         e.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
 
-        AppLogger.log("Banwordを削除しました: " + content, LogLevel.INFO);
+        AppLogger.log("BannedWordを削除しました: " + content, LogLevel.INFO);
     }
 }

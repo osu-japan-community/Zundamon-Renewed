@@ -9,6 +9,7 @@ import mames1.community.japan.osu.constants.ServerRole;
 import mames1.community.japan.osu.object.Discord;
 import mames1.community.japan.osu.object.Link;
 import mames1.community.japan.osu.object.MySQL;
+import mames1.community.japan.osu.utils.discord.message.TextMessageSender;
 import mames1.community.japan.osu.utils.http.oauth.OAuthMeResponseSender;
 import mames1.community.japan.osu.utils.http.oauth.OAuthRequestSender;
 import mames1.community.japan.osu.utils.http.request.ClientIpExtractor;
@@ -122,11 +123,17 @@ public class DiscordLinkListener implements HttpHandler {
                 verifiedMember, ServerRole.MEMBER.getRole()
             ).queue();
 
-            Objects.requireNonNull(Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getTextChannelById(ChannelID.VERIFICATION_LOG.getId()))
-                            .sendMessage("認証成功: " + verifiedMember.getEffectiveName() + " -> " + link.getBanchoName() + " (" + ip + ")").queue();
+            TextMessageSender.sendMessage(
+                    Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())),
+                    Objects.requireNonNull(jda.getTextChannelById(ChannelID.VERIFICATION_LOG.getId())),
+                            "認証成功: " + verifiedMember.getEffectiveName() + " -> " + link.getBanchoName() + " (" + ip + ")"
+            );
 
-            Objects.requireNonNull(Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())).getTextChannelById(ChannelID.WELCOME.getId()))
-                            .sendMessage(verifiedMember.getAsMention() + " さん、よろしくお願いします :grin:").queue();
+            TextMessageSender.sendMessage(
+                    Objects.requireNonNull(jda.getGuildById(ServerGuild.OJC.getId())),
+                    Objects.requireNonNull(jda.getTextChannelById(ChannelID.WELCOME.getId())),
+                    verifiedMember.getAsMention() + " さん、よろしくお願いします :grin:"
+            );
 
             // リダイレクト
             exchange.getResponseHeaders().set("Location", generalChatURL);

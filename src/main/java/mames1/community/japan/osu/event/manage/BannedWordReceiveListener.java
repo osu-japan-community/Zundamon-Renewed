@@ -31,7 +31,7 @@ public class BannedWordReceiveListener extends ListenerAdapter {
 
         if(banWords.contains(messageContent.toLowerCase())) {
             e.getMessage().delete().queue();
-            AppLogger.log("Banwordを検出しました: " + messageContent, LogLevel.INFO);
+            AppLogger.log("BannedWordを検出しました: " + messageContent, LogLevel.INFO);
         }
     }
 }
