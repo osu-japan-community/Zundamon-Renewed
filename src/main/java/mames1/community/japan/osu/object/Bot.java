@@ -1,5 +1,6 @@
 package mames1.community.japan.osu.object;
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import mames1.community.japan.osu.event.role.RoleAssignmentListener;
 import mames1.community.japan.osu.event.voicechat.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
@@ -33,6 +35,8 @@ public class Bot {
     public void start() {
         jda = JDABuilder.createDefault(token)
                 .setRawEventsEnabled(true)
+                .setAudioModuleConfig(new AudioModuleConfig()
+                        .withDaveSessionFactory(new JDaveSessionFactory()))
                 .enableIntents(
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.MESSAGE_CONTENT,

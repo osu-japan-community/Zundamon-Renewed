@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Role;
 
 @Getter
 public enum ServerRole {
-
     MAPPER(Main.bot.getJda().getRoleById(1090228160714526762L)),
     SKINNER(Main.bot.getJda().getRoleById(1090228065461882901L)),
     SAKKYOKU(Main.bot.getJda().getRoleById(1090514847667597373L)),

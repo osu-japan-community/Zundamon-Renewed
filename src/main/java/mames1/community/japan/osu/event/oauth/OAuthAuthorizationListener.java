@@ -3,9 +3,10 @@ package mames1.community.japan.osu.event.oauth;
 import mames1.community.japan.osu.constants.ChannelID;
 import mames1.community.japan.osu.object.Bancho;
 import mames1.community.japan.osu.utils.discord.embed.LoginEmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class OAuthAuthorizationListener extends ListenerAdapter {
 
         e.getMessage().getChannel().sendMessage("# OJCへようこそ！")
                 .addEmbeds(LoginEmbedBuilder.getEmbed().build())
-                .setActionRow(Button.link(authUrl, "認証する"))
+                .setComponents(ActionRow.of(Button.link(authUrl, "認証する")))
                 .queue();
     }
 }
